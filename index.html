@@ -543,7 +543,7 @@ function render(){
       state.tab === 'prep' ? listView('준비물', T.prep) :
       state.tab === 'eat'  ? listView('맛집 · 쇼핑', T.eat) : infoView()
     ),
-    state.edit && h('button', {class:'fab', onclick:() => { state.edit = false; render(); if(SYNC) pull(); }}, '✓ 완료'),
+    state.edit ? h('button', {class:'fab', onclick:() => { state.edit = false; render(); if(SYNC) pull(); }}, '✓ 완료') : document.createComment(''),
     h('nav', {class:'tabbar', 'aria-label':'메뉴'},
       TABS.map(([k, l]) => h('button', {'aria-current': state.tab === k ? 'page' : false,
         onclick:() => { state.tab = k; render(); window.scrollTo(0, 0); }

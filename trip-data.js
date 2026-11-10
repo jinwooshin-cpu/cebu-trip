@@ -8,7 +8,8 @@
 // ============================================================
 window.TRIP = {
   "name": "세부 가족여행",
-  "syncUrl": "https://cebu-trip-family-default-rtdb.asia-southeast1.firebasedatabase.app",   // 공유 저장소 주소 (비워두면 이 폰에만 저장)
+  "syncUrl": "https://cebu-trip-family-default-rtdb.asia-southeast1.firebasedatabase.app",
+  "dataVersion": 2,   // 기본 일정표가 크게 바뀌면 숫자를 올립니다 (예전 저장본을 버리고 새로 시작)   // 공유 저장소 주소 (비워두면 이 폰에만 저장)
   "start": "2026-11-24",   // 여행 첫날 (연-월-일)
   "flights": [
     {"from": "ICN", "to": "CEB", "dir": "인천 → 세부", "depDate": "2026-11-24", "depTime": "20:20", "arrDate": "2026-11-25", "arrTime": "00:10", "dur": "4시간 50분", "flight": "제주항공 7C2113", "code": "", "note": "인천 1터미널 출발 · 세부 2터미널 도착"},

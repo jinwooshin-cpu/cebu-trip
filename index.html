@@ -158,6 +158,7 @@ const DEFAULT = window.TRIP;
 const SYNC = (DEFAULT.syncUrl || '').replace(/\/+$/, '');
 const app = document.getElementById('app');
 const clone = o => JSON.parse(JSON.stringify(o));
+const V = DEFAULT.dataVersion || 0;
 
 /* ---------- storage ---------- */
 const mem = {};
@@ -180,7 +181,7 @@ let T = normalize(clone(DEFAULT));
 let rev = 0;
 try{
   const saved = JSON.parse(store.get('cebu:data') || 'null');
-  if(saved && saved.data){ T = normalize(saved.data); rev = saved.rev || 0; }
+  if(saved && saved.data && (saved.v || 0) >= V){ T = normalize(saved.data); rev = saved.rev || 0; }
 }catch(e){}
 
 /* ---------- sync (고친 내용 저장 · 서로의 폰에 반영) ---------- */
@@ -197,14 +198,14 @@ function statusText(){
 function paintStatus(){ document.querySelectorAll('[data-status]').forEach(el => { el.textContent = statusText(); }); }
 function touch(){
   rev = Date.now();
-  store.set('cebu:data', JSON.stringify({rev, data:T}));
+  store.set('cebu:data', JSON.stringify({rev, v:V, data:T}));
   if(!SYNC){ state.sync = 'local'; paintStatus(); return; }
   state.sync = 'saving'; paintStatus();
   clearTimeout(pushTimer); pushTimer = setTimeout(push, 700);
 }
 async function push(){
   try{
-    const r = await fetch(SYNC + '/trip.json', {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({rev, data:T})});
+    const r = await fetch(SYNC + '/trip.json', {method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({rev, v:V, data:T})});
     if(!r.ok) throw new Error('save');
     state.sync = 'saved';
   }catch(e){ state.sync = 'offline'; }
@@ -216,9 +217,13 @@ async function pull(){
     const r = await fetch(SYNC + '/trip.json', {cache:'no-store'});
     if(!r.ok) throw new Error('load');
     const j = await r.json();
+    if(j && (j.v || 0) < V){
+      rev = Date.now(); store.set('cebu:data', JSON.stringify({rev, v:V, data:T}));
+      state.sync = 'saving'; paintStatus(); push(); return;
+    }
     if(j && j.data && j.rev > rev){
       T = normalize(j.data); rev = j.rev;
-      store.set('cebu:data', JSON.stringify({rev, data:T}));
+      store.set('cebu:data', JSON.stringify({rev, v:V, data:T}));
       state.sync = 'saved';
       if(state.day >= T.days[state.ver].length) state.day = 0;
       if(!state.edit) render();

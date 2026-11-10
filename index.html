@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>세부 가족여행</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0D3B4F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="세부여행">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  --bg:#EAF3F4; --surface:#FFFFFF; --ink:#10212B; --muted:#5B7380; --line:#D5E3E7;
+  --sea:#0D3B4F; --sea-ink:#F2FAFB; --lagoon:#0E9C9A; --sun:#FFC247; --chip:#E1F0F0; --ok:#0E9C9A;
+  --font:"Pretendard Variable",Pretendard,-apple-system,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{ --bg:#08151B; --surface:#112630; --ink:#E7F1F3; --muted:#8CA5AF; --line:#21404B;
+         --sea:#0F4A63; --chip:#163640; --lagoon:#3CC6C2; --ok:#3CC6C2; }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-text-size-adjust:100%}
+body{min-height:100vh;display:flex;justify-content:center}
+#app{width:100%;max-width:520px;min-height:100vh;position:relative;padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:20;background:var(--sea);color:var(--sea-ink);
+  padding:calc(10px + env(safe-area-inset-top,0px)) 16px 12px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.top h1{margin:0;font-size:17px;font-weight:800;letter-spacing:-.02em}
+.seg{display:flex;background:rgba(255,255,255,.14);border-radius:999px;padding:3px}
+.seg button{border:0;background:none;color:inherit;font:inherit;font-size:13px;font-weight:600;padding:6px 13px;border-radius:999px;opacity:.78;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--sun);color:#3A2A00;opacity:1}
+
+main{padding:16px 16px 8px}
+.page-title{font-size:22px;font-weight:800;letter-spacing:-.03em;margin:4px 0 14px}
+
+/* boarding pass */
+.pass{position:relative;background:var(--sea);color:var(--sea-ink);border-radius:22px;overflow:hidden;margin-bottom:18px}
+.pass-main{padding:20px 22px 18px}
+.route{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px}
+.code{font-size:40px;font-weight:800;letter-spacing:.02em;line-height:1}
+.city{font-size:12px;opacity:.7;margin-top:6px}
+.route .r{text-align:right}
+.flight-line{position:relative;height:24px;display:flex;align-items:center}
+.flight-line::before{content:"";position:absolute;left:0;right:0;top:50%;border-top:2px dashed rgba(255,255,255,.35)}
+.flight-line span{position:relative;margin:0 auto;font-size:20px;background:var(--sea);padding:0 8px;transform:rotate(0)}
+.pass-tear{position:relative;height:0;border-top:2px dashed rgba(255,255,255,.3);margin:0 20px}
+.pass-tear::before,.pass-tear::after{content:"";position:absolute;top:-12px;width:22px;height:22px;border-radius:50%;background:var(--bg)}
+.pass-tear::before{left:-31px}.pass-tear::after{right:-31px}
+.pass-stub{padding:16px 22px 20px;display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}
+.k{font-size:11.5px;opacity:.65;margin-bottom:3px}
+.v{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.dday{background:var(--sun);color:#3A2A00;border-radius:14px;padding:8px 12px;text-align:center;min-width:72px}
+.dday b{display:block;font-size:22px;line-height:1.1;font-weight:800}
+.dday small{font-size:11px;font-weight:600}
+.pass-back{padding:0 22px 18px;font-size:13px;opacity:.82;display:flex;gap:6px;flex-wrap:wrap}
+
+/* day tabs */
+.days{display:grid;grid-template-columns:repeat(var(--n,5),1fr);gap:8px;margin-bottom:16px}
+.day{border:0;background:var(--surface);color:var(--ink);border-radius:16px;padding:10px 0 9px;font:inherit;cursor:pointer;box-shadow:inset 0 0 0 1.5px var(--line);position:relative}
+.day .w{display:block;font-size:12px;color:var(--muted);font-weight:600}
+.day .d{display:block;font-size:20px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.day[aria-selected=true]{background:var(--lagoon);color:#fff;box-shadow:none}
+.day[aria-selected=true] .w{color:rgba(255,255,255,.85)}
+.day.today::after{content:"";position:absolute;top:7px;right:9px;width:7px;height:7px;border-radius:50%;background:var(--sun)}
+
+.day-head{margin:0 2px 14px}
+.day-head h2{margin:0 0 8px;font-size:21px;font-weight:800;letter-spacing:-.03em}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{background:var(--chip);color:var(--ink);border-radius:999px;font-size:12.5px;font-weight:600;padding:5px 11px}
+.chip i{font-style:normal;color:var(--muted);margin-right:5px;font-weight:500}
+
+/* timeline */
+.tl{background:var(--surface);border-radius:22px;padding:18px 16px 6px;box-shadow:0 0 0 1.5px var(--line) inset}
+.row{display:grid;grid-template-columns:54px 34px 1fr;column-gap:10px;position:relative;padding-bottom:20px}
+.row:not(:last-child)::before{content:"";position:absolute;left:calc(54px + 10px + 16px);top:34px;bottom:2px;width:2px;background:var(--line);border-radius:2px}
+.time{text-align:right;padding-top:5px;font-variant-numeric:tabular-nums;line-height:1.25}
+.time b{display:block;font-size:15px;font-weight:700;letter-spacing:-.01em}
+.time span{display:block;font-size:12px;color:var(--muted)}
+.ico{width:34px;height:34px;border-radius:50%;background:var(--chip);display:grid;place-items:center;font-size:17px;position:relative;z-index:1}
+.row .body{padding-top:5px;min-width:0}
+.row h3{margin:0;font-size:16px;font-weight:700;letter-spacing:-.02em;line-height:1.35}
+.row p{margin:4px 0 0;font-size:13.5px;line-height:1.55;color:var(--muted);word-break:keep-all;overflow-wrap:anywhere}
+.row.key .ico{background:var(--sea);color:#fff}
+
+/* checklist */
+.group{background:var(--surface);border-radius:22px;padding:16px 8px 8px;margin-bottom:14px;box-shadow:0 0 0 1.5px var(--line) inset}
+.group-head{display:flex;align-items:baseline;justify-content:space-between;padding:0 10px 6px}
+.group-head h2{margin:0;font-size:17px;font-weight:800;letter-spacing:-.02em}
+.count{font-size:13px;font-weight:700;color:var(--lagoon);font-variant-numeric:tabular-nums}
+.bar{height:5px;background:var(--chip);border-radius:5px;margin:4px 10px 8px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--ok);border-radius:5px;transition:width .25s}
+.item{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;color:inherit;font:inherit;text-align:left;padding:11px 10px;border-radius:12px;cursor:pointer;min-height:46px}
+.item:active{background:var(--chip)}
+.box{flex:none;width:24px;height:24px;border-radius:8px;border:2px solid var(--line);display:grid;place-items:center;transition:.15s}
+.box svg{width:15px;height:15px;opacity:0;stroke:#fff}
+.item .lbl{font-size:15.5px;line-height:1.4;letter-spacing:-.01em}
+.item[aria-checked=true] .box{background:var(--ok);border-color:var(--ok)}
+.item[aria-checked=true] .box svg{opacity:1}
+.item[aria-checked=true] .lbl{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+.reset{display:block;margin:2px auto 14px;border:0;background:none;color:var(--muted);font:inherit;font-size:13px;text-decoration:underline;padding:8px;cursor:pointer}
+
+/* info */
+.card{background:var(--surface);border-radius:22px;padding:18px;margin-bottom:14px;box-shadow:0 0 0 1.5px var(--line) inset}
+.card h2{margin:0 0 12px;font-size:17px;font-weight:800;letter-spacing:-.02em}
+.kv{display:grid;grid-template-columns:78px 1fr;gap:9px 10px;font-size:14.5px;line-height:1.5;margin:0}
+.kv dt{color:var(--muted);font-weight:600}.kv dd{margin:0;font-weight:600}
+.kv dd.empty{color:var(--muted);font-weight:500}
+.perks{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.perks li{display:flex;gap:10px;font-size:14.5px;line-height:1.5}
+.perks li::before{content:"✓";color:var(--lagoon);font-weight:800}
+.howto ol{margin:0;padding-left:20px;font-size:14px;line-height:1.7;color:var(--muted)}
+.howto b{color:var(--ink)}
+
+/* tab bar */
+.tabbar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;z-index:30;background:var(--surface);
+  border-top:1.5px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+.tabbar button{border:0;background:none;color:var(--muted);font:inherit;font-size:11.5px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;cursor:pointer;border-radius:14px}
+.tabbar svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.tabbar button[aria-current=page]{color:var(--lagoon)}
+.tabbar button[aria-current=page] svg{stroke-width:2.3}
+button:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="trip-data.js"></script>
+<script>
+(function(){
+const T = window.TRIP;
+const app = document.getElementById('app');
+
+/* ---------- helpers ---------- */
+const mem = {};
+const store = {
+  get(k){ try{ return localStorage.getItem(k); }catch(e){ return mem[k] ?? null; } },
+  set(k,v){ try{ localStorage.setItem(k,v); }catch(e){ mem[k]=v; } },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){ delete mem[k]; } }
+};
+function h(tag, props, ...kids){
+  const e = document.createElement(tag);
+  for(const [k,v] of Object.entries(props||{})){
+    if(k==='class') e.className = v;
+    else if(k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else if(v!==false && v!=null) e.setAttribute(k, v);
+  }
+  for(const c of kids.flat()){ if(c==null||c===false) continue; e.append(c.nodeType ? c : document.createTextNode(c)); }
+  return e;
+}
+const TAB_ICONS = {
+  plan:'<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/>',
+  prep:'<rect x="4" y="3.5" width="16" height="17" rx="3"/><path d="m8.5 12 2.5 2.5 4.5-5"/>',
+  eat:'<path d="M7 3v8a2 2 0 0 0 2 2v8M11 3v8a2 2 0 0 1-2 2M9 3v6M17 21V3c-2.2 1.2-3.5 4-3.5 7.5 0 1.7 1.2 2.5 3.5 2.5"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.8v.1"/>'
+};
+const svgIcon = (p)=>{ const w=document.createElement('span'); w.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true">'+p+'</svg>'; return w.firstChild; };
+const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
+
+const ICONS = [
+  [/인천\s*(->|→)\s*세부|세부\s*(->|→)\s*인천/, '✈️', true],
+  [/출국|입국/, '🛂', true],
+  [/공항 도착/, '🛫'],
+  [/조식|점심|저녁|뷔페|식사/, '🍽️'],
+  [/호핑|스노쿨/, '⛵'],
+  [/수영|비치|리조트에서 수영/, '🏊'],
+  [/마사지/, '💆'],
+  [/뽀로로/, '🐧'],
+  [/네일/, '💅'],
+  [/영어|캠프/, '📚'],
+  [/베이비/, '👶'],
+  [/골프|카트/, '⛳'],
+  [/편의점/, '🏪'],
+  [/체크인|체크아웃|짐/, '🧳'],
+  [/공항|이동/, '🚐'],
+  [/로비/, '🛎️'],
+  [/기상/, '☀️'],
+  [/휴식|쉬/, '🌙']
+];
+function iconFor(title){ for(const [re,ic,key] of ICONS){ if(re.test(title)) return {ic, key:!!key}; } return {ic:'📍', key:false}; }
+
+/* ---------- dates (start 하나로 모두 계산) ---------- */
+const DOW = ['일','월','화','수','목','금','토'];
+const ISO = /^\d{4}-\d{1,2}-\d{1,2}$/;
+function parseISO(s){ const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); }
+function fmt(s){ if(!ISO.test(s)) return s; const d = parseISO(s); return (d.getMonth()+1)+'.'+d.getDate()+'('+DOW[d.getDay()]+')'; }
+function dayDate(i){ const d = parseISO(T.start); d.setDate(d.getDate()+i); return d; }
+function numDays(){ return T.days[state.ver].length; }
+
+/* ---------- state ---------- */
+const state = {
+  tab: 'plan',
+  ver: store.get('cebu:ver') || 'exp',
+  day: 0
+};
+function dayIndexToday(){
+  const n = new Date(); n.setHours(0,0,0,0);
+  return Math.round((n - parseISO(T.start))/864e5);
+}
+(function pickToday(){
+  const i = dayIndexToday();
+  if(i>=0 && i<numDays()) state.day = i;
+})();
+
+/* ---------- views ---------- */
+function ticket(){
+  const f = T.flights[0], r = T.flights[1];
+  const left = dayIndexToday();
+  let big, small;
+  if(left < 0){ big = 'D-'+Math.abs(left); small = '출발까지'; }
+  else if(left < numDays()){ big = (left+1)+'일차'; small = '여행 중'; }
+  else { big = '귀국'; small = '다녀왔어요'; }
+  return h('section',{class:'pass','aria-label':'항공권'},
+    h('div',{class:'pass-main'},
+      h('div',{class:'route'},
+        h('div',{}, h('div',{class:'code'}, f.from), h('div',{class:'city'}, '인천')),
+        h('div',{class:'flight-line'}, h('span',{}, '✈️')),
+        h('div',{class:'r'}, h('div',{class:'code'}, f.to), h('div',{class:'city'}, '세부'))
+      )
+    ),
+    h('div',{class:'pass-tear'}),
+    h('div',{class:'pass-stub'},
+      h('div',{}, h('div',{class:'k'}, '출발 '+fmt(f.depDate)), h('div',{class:'v'}, f.depTime)),
+      h('div',{}, h('div',{class:'k'}, '도착'), h('div',{class:'v'}, f.arrTime)),
+      h('div',{class:'dday'}, h('b',{}, big), h('small',{}, small))
+    ),
+    h('div',{class:'pass-back'}, '돌아오는 편  '+fmt(r.depDate)+' '+r.depTime+' → '+r.arrTime+' · '+r.flight)
+  );
+}
+
+function timeCell(t){
+  const parts = t.split('~').map(s=>s.trim());
+  const hasTilde = t.includes('~');
+  const a = parts[0], b = parts[1];
+  if(a && b) return h('div',{class:'time'}, h('b',{}, a), h('span',{}, b));
+  if(a && hasTilde) return h('div',{class:'time'}, h('b',{}, a), h('span',{}, '~'));
+  if(!a && b) return h('div',{class:'time'}, h('b',{}, '~'+b));
+  return h('div',{class:'time'}, h('b',{}, a||''));
+}
+
+function planView(){
+  const days = T.days[state.ver];
+  const d = days[state.day];
+  const today = dayIndexToday();
+  const wrap = h('div',{});
+  wrap.append(ticket());
+  wrap.append(h('div',{class:'days',role:'tablist',style:'--n:'+days.length},
+    days.map((x,i)=>h('button',{
+      class:'day'+(i===today?' today':''), role:'tab',
+      'aria-selected': String(i===state.day),
+      'aria-label': (dayDate(i).getMonth()+1)+'월 '+dayDate(i).getDate()+'일',
+      onclick:()=>{ state.day=i; render(); }
+    }, h('span',{class:'w'}, DOW[dayDate(i).getDay()]), h('span',{class:'d'}, dayDate(i).getDate())))
+  ));
+  wrap.append(h('div',{class:'day-head'},
+    h('h2',{}, d.title),
+    h('div',{class:'chips'},
+      d.am && h('span',{class:'chip'}, h('i',{}, '오전'), d.am),
+      d.pm && h('span',{class:'chip'}, h('i',{}, '오후'), d.pm)
+    )
+  ));
+  wrap.append(h('div',{class:'tl'},
+    d.items.map(it=>{
+      const {ic,key} = iconFor(it.title);
+      return h('div',{class:'row'+(key?' key':'')},
+        timeCell(it.time),
+        h('div',{class:'ico','aria-hidden':'true'}, ic),
+        h('div',{class:'body'}, h('h3',{}, it.title), it.note && h('p',{}, it.note))
+      );
+    })
+  ));
+  return wrap;
+}
+
+function checklistGroup(g){
+  const key = i => 'cebu:chk:'+g.id+':'+i;
+  const count = h('span',{class:'count'});
+  const fill = h('i',{});
+  const btns = [];
+  function update(){
+    const n = btns.filter(b=>b.getAttribute('aria-checked')==='true').length;
+    count.textContent = n+' / '+g.items.length;
+    fill.style.width = (g.items.length ? n/g.items.length*100 : 0)+'%';
+  }
+  g.items.forEach((label,i)=>{
+    const b = h('button',{class:'item',role:'checkbox','aria-checked': String(store.get(key(i))==='1'),
+      onclick:()=>{
+        const on = b.getAttribute('aria-checked')!=='true';
+        b.setAttribute('aria-checked', String(on));
+        on ? store.set(key(i),'1') : store.del(key(i));
+        update();
+      }},
+      h('span',{class:'box'}), h('span',{class:'lbl'}, label));
+    b.firstChild.innerHTML = CHECK;
+    btns.push(b);
+  });
+  const el = h('section',{class:'group'},
+    h('div',{class:'group-head'}, h('h2',{}, g.title), count),
+    h('div',{class:'bar'}, fill),
+    btns
+  );
+  update();
+  return {el, reset(){ g.items.forEach((_,i)=>store.del(key(i))); btns.forEach(b=>b.setAttribute('aria-checked','false')); update(); }};
+}
+function listView(title, groups){
+  const wrap = h('div',{}, h('div',{class:'page-title'}, title));
+  const gs = groups.map(checklistGroup);
+  gs.forEach(g=>wrap.append(g.el));
+  wrap.append(h('button',{class:'reset',onclick:()=>{ if(confirm('이 탭의 체크를 모두 지울까요? (이 기기에서만 지워져요)')) gs.forEach(g=>g.reset()); }}, '체크 모두 지우기'));
+  return wrap;
+}
+
+function infoView(){
+  const wrap = h('div',{}, h('div',{class:'page-title'}, '여행 정보'));
+  T.flights.forEach(f=>{
+    wrap.append(h('section',{class:'card'}, h('h2',{}, '✈️ '+f.dir),
+      h('dl',{class:'kv'},
+        h('dt',{}, '출발'), h('dd',{}, fmt(f.depDate)+' '+f.depTime),
+        h('dt',{}, '도착'), h('dd',{}, fmt(f.arrDate)+' '+f.arrTime),
+        h('dt',{}, '소요시간'), h('dd',{}, f.dur),
+        h('dt',{}, '항공편'), h('dd',{}, f.flight),
+        h('dt',{}, '예약번호'), h('dd',{class: f.code?'':'empty'}, f.code || '아직 입력 전'),
+        f.note && h('dt',{}, '비고'), f.note && h('dd',{}, f.note)
+      )));
+  });
+  const H = T.hotel;
+  wrap.append(h('section',{class:'card'}, h('h2',{}, '🏨 숙소'),
+    h('dl',{class:'kv'},
+      h('dt',{}, '이름'), h('dd',{}, H.name),
+      h('dt',{}, '일정'), h('dd',{}, H.stay),
+      h('dt',{}, '조식'), h('dd',{}, H.breakfast)
+    ),
+    h('div',{style:'height:14px'}),
+    h('ul',{class:'perks'},
+      h('li',{}, H.perks[state.ver]),
+      H.common.map(x=>h('li',{}, x))
+    )
+  ));
+  wrap.append(h('section',{class:'card howto'}, h('h2',{}, '✏️ 내용 고치는 법'),
+    h('ol',{},
+      h('li',{}, '깃허브 저장소에서 ', h('b',{}, 'trip-data.js'), ' 파일을 엽니다'),
+      h('li',{}, '오른쪽 위 연필(✏️) 버튼을 눌러 글자를 고칩니다'),
+      h('li',{}, h('b',{}, 'Commit changes'), ' 를 누르면 1~2분 뒤 앱에 반영돼요')
+    )));
+  return wrap;
+}
+
+/* ---------- shell ---------- */
+const TABS = [['plan','일정'],['prep','준비물'],['eat','맛집·쇼핑'],['info','정보']];
+function render(){
+  app.replaceChildren(
+    h('header',{class:'top'},
+      h('h1',{}, '🌴 '+T.name),
+      h('div',{class:'seg',role:'group','aria-label':'여행 유형'},
+        [['exp','체험형'],['hotel','호캉스형']].map(([k,l])=>h('button',{
+          'aria-pressed': String(state.ver===k),
+          onclick:()=>{ state.ver=k; store.set('cebu:ver',k); render(); }
+        }, l)))
+    ),
+    h('main',{},
+      state.tab==='plan' ? planView() :
+      state.tab==='prep' ? listView('준비물', T.prep) :
+      state.tab==='eat'  ? listView('맛집 · 쇼핑', T.eat) : infoView()
+    ),
+    h('nav',{class:'tabbar','aria-label':'메뉴'},
+      TABS.map(([k,l])=>{
+        const b = h('button',{ 'aria-current': state.tab===k ? 'page' : false,
+          onclick:()=>{ state.tab=k; render(); window.scrollTo(0,0); }
+        }, svgIcon(TAB_ICONS[k]), l);
+        return b;
+      })
+    )
+  );
+}
+render();
+
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+})();
+</script>
+</body>
+</html>

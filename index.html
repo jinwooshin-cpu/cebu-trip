@@ -131,7 +131,12 @@ button:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
 .ed{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;font-size:15px;resize:none;line-height:1.45}
 .ed:focus{outline:2px solid var(--lagoon);border-color:transparent}
 .erow{border:1.5px solid var(--line);border-radius:16px;padding:12px;margin-bottom:10px;background:var(--surface);display:grid;gap:8px}
-.erow .l1{display:grid;grid-template-columns:140px 1fr;gap:8px;align-items:start}
+.erow .l1{display:grid;grid-template-columns:1fr;gap:8px;align-items:start}
+.tfield{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tcell{display:flex;flex-direction:column;gap:4px;min-width:0}
+.tcell .trow{display:flex;gap:6px;align-items:center}
+.tcell input.ed{min-width:0;flex:1;padding:10px 8px;font-size:15px}
+.tcell .tx{border:0;background:var(--chip);color:var(--muted);width:34px;height:40px;border-radius:10px;font-size:15px;cursor:pointer;flex:none}
 .erow .l1 .ed:first-child{font-size:14px;padding:10px 8px;letter-spacing:-.02em}
 .ebtns{display:flex;gap:8px;justify-content:flex-end}
 .mini{border:0;background:var(--chip);color:var(--ink);font:inherit;font-size:13px;font-weight:600;padding:8px 13px;border-radius:10px;cursor:pointer}
@@ -349,10 +354,23 @@ function timeCell(t){
   return h('div', {class:'time'}, h('b', {}, a || ''));
 }
 
+function timeFields(it){
+  const ok = s => /^\d{1,2}:\d{2}$/.test(s || '');
+  const parts = (it.time || '').split('~').map(s => s.trim());
+  const sa = h('input', {class:'ed', type:'time', 'aria-label':'시작 시간'});
+  const sb = h('input', {class:'ed', type:'time', 'aria-label':'끝나는 시간'});
+  sa.value = ok(parts[0]) ? parts[0].padStart(5, '0') : '';
+  sb.value = ok(parts[1]) ? parts[1].padStart(5, '0') : '';
+  const upd = () => { const a = sa.value, b = sb.value; it.time = a && b ? a + ' ~ ' + b : a ? a : b ? '~' + b : ''; touch(); };
+  sa.addEventListener('input', upd); sb.addEventListener('input', upd);
+  const cell = (label, input) => h('div', {class:'tcell'}, h('span', {class:'lbl2', style:'margin:0'}, label),
+    h('div', {class:'trow'}, input, h('button', {class:'tx', type:'button', 'aria-label':label + ' 지우기', onclick:() => { input.value = ''; upd(); }}, '✕')));
+  return h('div', {class:'tfield'}, cell('시작 시간', sa), cell('끝나는 시간', sb));
+}
 function editRow(items, i){
   const it = items[i];
   return h('div', {class:'erow'},
-    h('div', {class:'l1'}, field(it, 'time', {ph:'09:00 ~ 10:00'}), field(it, 'title', {area:true, ph:'일정 이름'})),
+    h('div', {class:'l1'}, timeFields(it), field(it, 'title', {area:true, ph:'일정 이름'})),
     field(it, 'note', {area:true, ph:'메모 (선택)'}),
     h('div', {class:'ebtns'},
       h('button', {class:'mini', 'aria-label':'위로', onclick:() => { swap(items, i, i-1); touch(); render(); }}, '↑ 위로'),
@@ -473,7 +491,7 @@ function infoEdit(){
     h('p', {style:'margin:10px 0 0;font-size:13px;color:var(--muted);line-height:1.5'}, '첫날만 바꾸면 일정 탭의 날짜·요일·D-day가 모두 바뀌어요. 항공편 날짜는 아래에서 따로 고쳐주세요.')));
   T.flights.forEach(f => {
     wrap.append(h('section', {class:'card'}, h('h2', {}, '✈️ ' + (f.dir || '항공편')),
-      FLIGHT_FIELDS.map(([k, label]) => [h('span', {class:'lbl2'}, label), field(f, k, {type: (k === 'depDate' || k === 'arrDate') ? 'date' : 'text'})])));
+      FLIGHT_FIELDS.flatMap(([k, label]) => [h('span', {class:'lbl2'}, label), field(f, k, {type: (k === 'depDate' || k === 'arrDate') ? 'date' : (k === 'depTime' || k === 'arrTime') ? 'time' : 'text'})])));
   });
   const H = T.hotel;
   wrap.append(h('section', {class:'card'}, h('h2', {}, '🏨 숙소'),

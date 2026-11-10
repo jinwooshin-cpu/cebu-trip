@@ -8,6 +8,7 @@
 // ============================================================
 window.TRIP = {
   "name": "세부 가족여행",
+  "syncUrl": "https://cebu-trip-family-default-rtdb.asia-southeast1.firebasedatabase.app",   // 공유 저장소 주소 (비워두면 이 폰에만 저장)
   "start": "2026-11-24",   // 여행 첫날 (연-월-일)
   "flights": [
     {"from": "ICN", "to": "CEB", "dir": "인천 → 세부", "depDate": "2026-11-24", "depTime": "18:45", "arrDate": "2026-11-24", "arrTime": "22:20", "dur": "4시간 35분", "flight": "대한항공 KE0601", "code": "", "note": "항공 시간 수정해서 이용해주세요"},

@@ -184,7 +184,7 @@ try{
 }catch(e){}
 
 /* ---------- sync (고친 내용 저장 · 서로의 폰에 반영) ---------- */
-const state = { tab:'plan', ver: store.get('cebu:ver') || 'exp', day:0, edit:false, sync: SYNC ? 'saved' : 'local' };
+const state = { tab:'plan', ver: 'exp', day:0, edit:false, sync: SYNC ? 'saved' : 'local' };
 let pushTimer;
 function statusText(){
   return ({
@@ -327,7 +327,7 @@ function ticket(){
     h('div', {class:'pass-tear'}),
     h('div', {class:'pass-stub'},
       h('div', {}, h('div', {class:'k'}, '출발 ' + fmt(f.depDate)), h('div', {class:'v'}, f.depTime)),
-      h('div', {}, h('div', {class:'k'}, '도착'), h('div', {class:'v'}, f.arrTime)),
+      h('div', {}, h('div', {class:'k'}, '도착' + (f.arrDate && f.arrDate !== f.depDate ? ' ' + fmt(f.arrDate) : '')), h('div', {class:'v'}, f.arrTime)),
       h('div', {class:'dday'}, h('b', {}, big), h('small', {}, small))
     ),
     h('div', {class:'pass-back'}, '돌아오는 편  ' + fmt(r.depDate) + ' ' + (r.depTime || '') + ' → ' + (r.arrTime || '') + ' · ' + (r.flight || ''))
@@ -527,11 +527,6 @@ function render(){
     h('header', {class:'top'},
       h('h1', {}, '🌴 ' + (T.name || '세부 가족여행')),
       h('div', {class:'right'},
-        h('div', {class:'seg', role:'group', 'aria-label':'여행 유형'},
-          [['exp','체험형'], ['hotel','호캉스형']].map(([k, l]) => h('button', {
-            'aria-pressed': String(state.ver === k),
-            onclick:() => { state.ver = k; store.set('cebu:ver', k); render(); }
-          }, l))),
         !state.edit && h('button', {class:'iconbtn', 'aria-label':'수정', title:'수정', onclick:() => { state.edit = true; render(); window.scrollTo(0, 0); }}, '✏️')
       )
     ),
